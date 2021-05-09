@@ -16,8 +16,23 @@
             <pre id="json"></pre>
             <pre id="users"></pre>
         </div>
+        <div id="webService-feed" class="hide" style="height500px;width:248px;border : solid 1px silver;border-top:0px;margin-top:0px;padding:3px;overflow: scroll;">
+            <span class="message-list-item--body-message" id="yammer-feed"></span>
+        </div>
     </div>
+    <style>
+        .hide {
+            display: none;
+        }
+        .message-list-item--body-message{
+            font-size:13px;
+            /*line-height:1.3;*/
+            color :#343a41;
+            font-family : "Segoe UI","Segoe",Tahoma,Helvetica,Arial,sans-serif;
+        }
+    </style>
 <script>
+    
     var msalConfig = {
         auth: {
             clientId: '57aa0741-9270-4e68-9652-437ee5570a91', //This is your client ID
@@ -63,11 +78,13 @@
     function acquireTokenPopupAndcallYammerAPI() {
         //Always start with acquireTokenSilent to obtain a token in the signed in user from cache
         myMSALObj.acquireTokenSilent(requestObj).then(function (tokenResponse) {
-            callYammerAPI(yammerConfig.yammerUrl, tokenResponse.accessToken, "users/current.json");
-            callYammerAPI(yammerConfig.yammerUrl, tokenResponse.accessToken, "users.json");
-            callYammerAPI(yammerConfig.yammerUrl, tokenResponse.accessToken, "users/in_group/"+groupId+".json");
-            callYammerAPI(yammerConfig.yammerUrl, tokenResponse.accessToken, "users/liked_message/"+messageId+".json");
-            callYammerAPI(yammerConfig.yammerUrl, tokenResponse.accessToken, "uploaded_files/"+fileID+"/version/"+versionID+"/preview")
+            // callYammerAPI(yammerConfig.yammerUrl, tokenResponse.accessToken, "users/current.json");
+            // callYammerAPI(yammerConfig.yammerUrl, tokenResponse.accessToken, "users.json");
+            // callYammerAPI(yammerConfig.yammerUrl, tokenResponse.accessToken, "users/in_group/"+groupId+".json");
+            // callYammerAPI(yammerConfig.yammerUrl, tokenResponse.accessToken, "users/liked_message/"+messageId+".json");
+            // callYammerAPI(yammerConfig.yammerUrl, tokenResponse.accessToken, "uploaded_files/"+fileID+"/version/"+versionID+"/preview")
+
+            callYammerAPI(yammerConfig.yammerUrl, tokenResponse.accessToken, "messages/in_group/"+groupId+".json");
         }).catch(function (error) {
             console.log(error);
             // Upon acquireTokenSilent failure (due to consent or interaction or login required ONLY)
@@ -93,11 +110,35 @@
         .then(response => response.json())
         .then(function(data) {
             // data is your response. 
+            showGroupMessages(data);
             console.log(data); //response
-            document.getElementById('json').innerHTML = document.getElementById('json').innerHTML + endpoint + " succeded.\n"
+            // document.getElementById('json').innerHTML = document.getElementById('json').innerHTML + endpoint + " succeded.\n"
         }).catch(function(err){
             document.getElementById('json').innerHTML = document.getElementById('json').innerHTML + endpoint + " returned error.\n"
         });
+    }
+
+    function showGroupMessages(data) {
+        var myFeed="";
+        var userName="";
+        var userPicUrl="";
+        for (var i = 0; i < data.messages.length; i++) {
+            var post = data.messages[i];
+            for (var j = 0; j < data.references.length; j++) {
+                if(data.references[j].id==post.sender_id){
+                    userName = data.references[j].full_name;
+                    userPicUrl = data.references[j].mugshot_url;              
+                }           
+            }
+            postBody=data.messages[i].body.plain;
+            messageTime = data.messages[i].created_at.substring(0,19);
+            myFeed += "<br><img style='margin-right:3px;float:left;' src='"+ userPicUrl +"'/><div style='color:rgba(0, 138, 94, 1);font-weight:bold;' >" + userName + "<br><br><span style='font-weight:normal;color:silver'>"+ messageTime +"</span></div><div style='clear:both'></div><br>" +  postBody + "<br>";
+            userName="";
+            userPicUrl="";
+        }
+        myFeed += "<br><br>";
+        document.getElementById("yammer-feed").innerHTML = myFeed;
+        document.getElementById("webService-feed").classList.remove("hide")
     }
 
     function showWelcomeMessage() {
@@ -113,12 +154,13 @@
    function acquireTokenRedirectAndcallYammerAPI() {
         //Always start with acquireTokenSilent to obtain a token in the signed in user from cache
         myMSALObj.acquireTokenSilent(requestObj).then(function (tokenResponse) {
-            callYammerAPI(yammerConfig.yammerUrl, tokenResponse.accessToken, "users/current.json");
-            callYammerAPI(yammerConfig.yammerUrl, tokenResponse.accessToken, "users.json");
-            callYammerAPI(yammerConfig.yammerUrl, tokenResponse.accessToken, "users/by_email.json?email="+emailId);
-            callYammerAPI(yammerConfig.yammerUrl, tokenResponse.accessToken, "users/in_group/"+groupId+".json");
-            callYammerAPI(yammerConfig.yammerUrl, tokenResponse.accessToken, "users/liked_message/"+messageId+".json");
-            callYammerAPI(yammerConfig.yammerUrl, tokenResponse.accessToken, "uploaded_files/1923022848")
+            // callYammerAPI(yammerConfig.yammerUrl, tokenResponse.accessToken, "users/current.json");
+            // callYammerAPI(yammerConfig.yammerUrl, tokenResponse.accessToken, "users.json");
+            // callYammerAPI(yammerConfig.yammerUrl, tokenResponse.accessToken, "users/by_email.json?email="+emailId);
+            // callYammerAPI(yammerConfig.yammerUrl, tokenResponse.accessToken, "users/in_group/"+groupId+".json");
+            // callYammerAPI(yammerConfig.yammerUrl, tokenResponse.accessToken, "users/liked_message/"+messageId+".json");
+            // callYammerAPI(yammerConfig.yammerUrl, tokenResponse.accessToken, "uploaded_files/1923022848")
+            callYammerAPI(yammerConfig.yammerUrl, tokenResponse.accessToken, "messages/in_group/"+groupId+".json");
         }).catch(function (error) {
             console.log(error);
             // Upon acquireTokenSilent failure (due to consent or interaction or login required ONLY)
@@ -187,6 +229,7 @@
     function signOut() {
         myMSALObj.logout();
     }
+
 </script>
 </body>
 </html>
