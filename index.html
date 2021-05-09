@@ -94,7 +94,7 @@
         .then(function(data) {
             // data is your response. 
             console.log(data); //response
-            alert("data");
+            alert(response.json);
             document.getElementById('json').innerHTML = document.getElementById('json').innerHTML + endpoint + " succeded.\n"
         }).catch(function(err){
             document.getElementById('json').innerHTML = document.getElementById('json').innerHTML + endpoint + " returned error.\n"
