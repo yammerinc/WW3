@@ -20,12 +20,11 @@
 <script>
     var msalConfig = {
         auth: {
-            clientId: 'ba7a6f4c-6d60-43a1-9197-8dadc2799918', //This is your client ID
-            authority: "https://login.microsoftonline.com/70c89e2e-bb34-44a2-9e8e-b2d2d991436c" //This is your tenant info
+            clientId: '57aa0741-9270-4e68-9652-437ee5570a91', //This is your client ID
+            authority: "https://login.microsoftonline.com/common" //This is your tenant info
 
         },
         cache: {
-            cacheLocation: "localStorage",
             storeAuthStateInCookie: true
         }
     };
@@ -42,7 +41,6 @@
 
     var myMSALObj = new Msal.UserAgentApplication(msalConfig);
     var filedId = 955797544960; //for YammerFileAPI. 
-    var emailId; 
     var groupId = 59935252480; //could be populated through users endpoint
     var messageId = 1195297106616320;
 
@@ -66,10 +64,9 @@
         myMSALObj.acquireTokenSilent(requestObj).then(function (tokenResponse) {
             callYammerAPI(yammerConfig.yammerUrl, tokenResponse.accessToken, "users/current.json");
             callYammerAPI(yammerConfig.yammerUrl, tokenResponse.accessToken, "users.json");
-            callYammerAPI(yammerConfig.yammerUrl, tokenResponse.accessToken, "users/by_email.json?email="+emailId);
             callYammerAPI(yammerConfig.yammerUrl, tokenResponse.accessToken, "users/in_group/"+groupId+".json");
             callYammerAPI(yammerConfig.yammerUrl, tokenResponse.accessToken, "users/liked_message/"+messageId+".json");
-            callYammerAPI(yammerConfig.yammerUrl, tokenResponse.accessToken, "uploaded_files/955797544960/large_preview")
+            callYammerAPI(yammerConfig.yammerUrl, tokenResponse.accessToken, "uploaded_files/"+fileID+"large_preview")
         }).catch(function (error) {
             console.log(error);
             // Upon acquireTokenSilent failure (due to consent or interaction or login required ONLY)
